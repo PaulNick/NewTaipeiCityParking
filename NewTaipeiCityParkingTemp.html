@@ -1,0 +1,63 @@
+<html>
+<title>NewTaipeiCity Parking</title>
+<head>
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=big5">
+<meta http-equiv="refresh" content="180" />
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+<script>
+		$(function() {
+			var config = {
+			  apiKey: "AIzaSyBp60Atzfhbbhlo0wzJ0dZxsoahbwQkghw",
+			  authDomain: "taipeiparking-667e9.firebaseapp.com",
+			  databaseURL: "https://taipeiparking-667e9.firebaseio.com",
+			  storageBucket: "taipeiparking-667e9.appspot.com",
+			};
+			firebase.initializeApp(config);
+			var db = firebase.database();
+		   var url = "http://json2jsonp.com/?url=http://data.ntpc.gov.tw/od/data/api/E09B35A5-A738-48CC-B0F5-570B67AD9C78?$format=json&callback=cbfunc";
+			   $.ajax({
+						type: 'GET',
+						url: url,
+						async: false,
+						contentType: "application/json",
+						dataType: 'jsonp',
+						success: function(json) 
+						{
+							$.each( json, function( j, k ){
+								if(k.AVAILABLECAR != -9)
+								{
+										for (i = 0; i < 803; i++)
+										{
+											var ref = db.ref("/"+i+"/");
+											ref.on("value", function(snapshot) {
+												if(snapshot.val().ID == k.ID)
+												{
+													var key = snapshot.key;
+													var updateRef = db.ref("/"+key+"/");
+													updateRef.update({
+														"AVAILABLECAR":k.AVAILABLECAR
+													});
+													
+													
+												}
+											});
+
+																											
+										}
+								}
+							});	
+						},
+						error: function(e)
+						{
+							console.log(e.message);
+						}
+				});
+		 });
+</script>
+</head>
+<body>
+</body>
+</html>
